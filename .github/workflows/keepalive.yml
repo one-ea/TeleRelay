@@ -1,0 +1,48 @@
+name: 🔄 Lunes Keep Alive
+
+on:
+  schedule:
+    # 每 7 天执行一次（比 15 天限制保守一倍）
+    - cron: '0 8 */7 * *'
+  workflow_dispatch: # 支持手动触发测试
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔐 Login to Betadash
+        run: |
+          echo "🔄 正在登录 Betadash 保活..."
+
+          # 获取登录页面和 CSRF token
+          COOKIES=$(mktemp)
+          LOGIN_PAGE=$(curl -s -c "$COOKIES" "https://betadash.lunes.host/login")
+          TOKEN=$(echo "$LOGIN_PAGE" | grep -oP 'name="_token"[^>]*value="\K[^"]+' || true)
+
+          if [ -z "$TOKEN" ]; then
+            echo "⚠️ 无法获取 CSRF token，尝试直接请求..."
+            RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+              -b "$COOKIES" \
+              -d "email=${{ secrets.LUNES_EMAIL }}&password=${{ secrets.LUNES_PASSWORD }}" \
+              "https://betadash.lunes.host/login")
+          else
+            RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+              -b "$COOKIES" -c "$COOKIES" \
+              -d "_token=${TOKEN}&email=${{ secrets.LUNES_EMAIL }}&password=${{ secrets.LUNES_PASSWORD }}" \
+              "https://betadash.lunes.host/login")
+          fi
+
+          # 验证登录结果
+          DASHBOARD=$(curl -s -b "$COOKIES" "https://betadash.lunes.host" -o /dev/null -w "%{http_code}")
+
+          rm -f "$COOKIES"
+
+          echo "登录响应码: $RESPONSE"
+          echo "仪表盘响应码: $DASHBOARD"
+
+          if [ "$DASHBOARD" = "200" ]; then
+            echo "✅ Betadash 保活成功！"
+          else
+            echo "❌ 保活可能失败，请手动检查"
+            exit 1
+          fi
