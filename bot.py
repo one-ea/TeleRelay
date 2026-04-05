@@ -187,58 +187,91 @@ def _owner_only(func):
 
 async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
+    name = update.effective_user.first_name or "朋友"
 
     if user_id == OWNER_ID:
         await update.message.reply_text(
-            "👑 *管理员模式*\n\n"
-            "直接回复转发消息即可回复用户\n"
-            "输入 /help 查看所有命令",
+            "╔══════════════════╗\n"
+            "║  👑  *管 理 员 面 板*  ║\n"
+            "╚══════════════════╝\n\n"
+            "欢迎回来！操作说明：\n\n"
+            "  💬  回复转发的消息 → 即可回复用户\n"
+            "  📋  输入 /help → 查看完整命令\n\n"
+            "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄\n"
+            f"📮 _TeleRelay v{VERSION}_",
             parse_mode="Markdown",
         )
         return
 
     if user_id in banned_users:
-        await update.message.reply_text("🚫 你已被禁止使用此机器人。")
+        await update.message.reply_text(
+            "⛔ *访问被拒绝*\n\n"
+            "你已被管理员限制使用此机器人。",
+            parse_mode="Markdown",
+        )
         return
 
     if user_id in verified_users:
-        await update.message.reply_text("✅ 你已通过验证，直接发消息即可转达给主人。")
+        await update.message.reply_text(
+            f"┏━━━━━━━━━━━━━━━━━━┓\n"
+            f"┃  ✅  *欢迎回来, {name}!*\n"
+            f"┗━━━━━━━━━━━━━━━━━━┛\n\n"
+            "你已通过验证 ✨\n"
+            "直接发送消息即可转达给主人\n\n"
+            "💡 支持：文字 · 图片 · 视频 · 文件 · 语音",
+            parse_mode="Markdown",
+        )
     else:
         q, answer, keyboard = generate_captcha()
         pending_users[user_id] = {"answer": answer}
         await update.message.reply_text(
-            f"🤖 你想联系主人，请先完成验证：\n\n{q}",
+            f"┏━━━━━━━━━━━━━━━━━━┓\n"
+            f"┃  🛡️  *安 全 验 证*\n"
+            f"┗━━━━━━━━━━━━━━━━━━┛\n\n"
+            f"你好 *{name}*！\n"
+            f"在联系主人之前，请先完成验证：\n\n"
+            f"  👉  *{q}*",
             reply_markup=keyboard,
+            parse_mode="Markdown",
         )
 
 
 async def cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id == OWNER_ID:
         text = (
-            "👑 *管理员命令*\n\n"
-            "💬 *回复用户* — 直接回复转发消息\n"
-            "━━━━━━━━━━━━━━━━\n"
-            "/ban `用户ID` — 封禁用户\n"
-            "/unban `用户ID` — 解封用户\n"
-            "/banlist — 查看封禁列表\n"
-            "━━━━━━━━━━━━━━━━\n"
-            "/list — 查看联系过的用户\n"
-            "/stats — 查看运行统计\n"
-            "━━━━━━━━━━━━━━━━\n"
-            "/away — 切换离开模式\n"
-            "/setaway `消息内容` — 设置离开自动回复\n"
-            "━━━━━━━━━━━━━━━━\n"
-            "/broadcast `消息` — 群发给所有已验证用户\n"
-            "/help — 显示此帮助"
+            "╔══════════════════╗\n"
+            "║  📖  *命 令 手 册*    ║\n"
+            "╚══════════════════╝\n\n"
+            "💬  *消息回复*\n"
+            "┃  回复转发消息即可回复用户\n\n"
+            "🚫  *用户管理*\n"
+            "┃  /ban `ID`  ─ 封禁用户\n"
+            "┃  /unban `ID`  ─ 解封用户\n"
+            "┃  /banlist  ─ 封禁列表\n\n"
+            "📊  *数据查看*\n"
+            "┃  /list  ─ 联系人列表\n"
+            "┃  /stats  ─ 运行统计\n\n"
+            "⚙️  *模式设置*\n"
+            "┃  /away  ─ 切换离开模式\n"
+            "┃  /setaway `内容`  ─ 离开自动回复\n\n"
+            "📢  *其他功能*\n"
+            "┃  /broadcast `消息`  ─ 群发通知\n"
+            "┃  /help  ─ 显示此帮助\n\n"
+            "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄\n"
+            f"📮 _TeleRelay v{VERSION}_"
         )
     else:
         text = (
-            "📮 *私聊中转机器人*\n\n"
-            "通过这个机器人，你可以联系主人。\n\n"
-            "1️⃣ 发送 /start 开始验证\n"
-            "2️⃣ 完成验证后直接发消息\n"
-            "3️⃣ 支持文字、图片、视频、文件、语音等\n"
-            "4️⃣ 主人回复后你会收到通知"
+            "╔══════════════════╗\n"
+            "║  📮  *使 用 指 南*    ║\n"
+            "╚══════════════════╝\n\n"
+            "通过这个机器人，你可以联系主人 ✨\n\n"
+            "  1️⃣  发送 /start 开始验证\n"
+            "  2️⃣  完成验证后直接发消息\n"
+            "  3️⃣  支持 文字 · 图片 · 视频 · 文件 · 语音\n"
+            "  4️⃣  主人回复后你会收到通知\n\n"
+            "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄\n"
+            "💡 _有问题随时发消息吧！_"
         )
     await update.message.reply_text(text, parse_mode="Markdown")
 
@@ -261,10 +294,21 @@ async def cmd_ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
     save_data()
 
     name = data["user_info"].get(str(target), {}).get("name", "未知")
-    await update.message.reply_text(f"🚫 已封禁用户: {name} (ID: {target})")
+    await update.message.reply_text(
+        f"🚫 *已封禁*\n\n"
+        f"  👤 用户：{name}\n"
+        f"  🆔 ID：`{target}`\n\n"
+        "该用户已被加入黑名单。",
+        parse_mode="Markdown",
+    )
 
     try:
-        await context.bot.send_message(target, "🚫 你已被管理员禁止使用此机器人。")
+        await context.bot.send_message(
+            target,
+            "⛔ *访问被限制*\n\n"
+            "你已被管理员禁止使用此机器人。",
+            parse_mode="Markdown",
+        )
     except Exception:
         pass
 
@@ -285,29 +329,46 @@ async def cmd_unban(update: Update, context: ContextTypes.DEFAULT_TYPE):
     save_data()
 
     name = data["user_info"].get(str(target), {}).get("name", "未知")
-    await update.message.reply_text(f"✅ 已解封用户: {name} (ID: {target})")
+    await update.message.reply_text(
+        f"✅ *已解封*\n\n"
+        f"  👤 用户：{name}\n"
+        f"  🆔 ID：`{target}`\n\n"
+        "该用户现在可以正常使用了。",
+        parse_mode="Markdown",
+    )
 
 
 @_owner_only
 async def cmd_banlist(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not banned_users:
-        await update.message.reply_text("📋 封禁列表为空")
+        await update.message.reply_text(
+            "📋 *封禁列表*\n\n  ✨ 列表为空，天下太平！",
+            parse_mode="Markdown",
+        )
         return
 
-    lines = ["🚫 *封禁列表*\n"]
-    for uid in banned_users:
+    lines = [
+        "╔══════════════════╗\n"
+        "║  🚫  *封 禁 列 表*    ║\n"
+        "╚══════════════════╝\n"
+    ]
+    for i, uid in enumerate(banned_users, 1):
         info = data["user_info"].get(str(uid), {})
         name = info.get("name", "未知")
         username = info.get("username", "")
-        tag = f" @{username}" if username else ""
-        lines.append(f"• {name}{tag} — `{uid}`")
+        tag = f" (@{username})" if username else ""
+        lines.append(f"  {i}. {name}{tag}\n       ID: `{uid}`")
+    lines.append(f"\n┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄\n共 *{len(banned_users)}* 人")
     await update.message.reply_text("\n".join(lines), parse_mode="Markdown")
 
 
 @_owner_only
 async def cmd_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not data["user_info"]:
-        await update.message.reply_text("📋 还没有用户联系过你")
+        await update.message.reply_text(
+            "📋 *联系人列表*\n\n  ✨ 还没有用户联系过你",
+            parse_mode="Markdown",
+        )
         return
 
     sorted_users = sorted(
@@ -316,16 +377,25 @@ async def cmd_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reverse=True,
     )
 
-    lines = ["📋 *联系人列表*\n"]
-    for uid, info in sorted_users[:20]:
+    lines = [
+        "╔══════════════════╗\n"
+        "║  📋  *联 系 人 列 表*  ║\n"
+        "╚══════════════════╝\n"
+    ]
+    for i, (uid, info) in enumerate(sorted_users[:20], 1):
         name = info.get("name", "未知")
         username = info.get("username", "")
-        tag = f" @{username}" if username else ""
+        tag = f" (@{username})" if username else ""
         count = info.get("msg_count", 0)
         first = info.get("first_seen", "?")
         status = "🚫" if int(uid) in banned_users else "✅"
-        lines.append(f"{status} {name}{tag}\n    ID: `{uid}` | 消息: {count} | 首次: {first}")
+        lines.append(
+            f"  {status} *{name}*{tag}\n"
+            f"       🆔 `{uid}` · 💬 {count}条 · 📅 {first}"
+        )
 
+    total = len(data["user_info"])
+    lines.append(f"\n┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄\n共 *{total}* 位联系人")
     await update.message.reply_text("\n".join(lines), parse_mode="Markdown")
 
 
@@ -333,12 +403,16 @@ async def cmd_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def cmd_stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     away = "🟢 在线" if not data["away_mode"] else "🔴 离开"
     text = (
-        f"📊 *运行统计 — v{VERSION}*\n\n"
-        f"👥 总联系人数: {len(data['user_info'])}\n"
-        f"✅ 已验证: {len(verified_users)}\n"
-        f"🚫 已封禁: {len(banned_users)}\n"
-        f"💬 总转发消息: {data['total_forwarded']}\n"
-        f"📡 当前状态: {away}"
+        "╔══════════════════╗\n"
+        "║  📊  *运 行 统 计*    ║\n"
+        "╚══════════════════╝\n\n"
+        f"  👥  联系人总数 ·····  *{len(data['user_info'])}*\n"
+        f"  ✅  已验证用户 ·····  *{len(verified_users)}*\n"
+        f"  🚫  已封禁用户 ·····  *{len(banned_users)}*\n"
+        f"  💬  转发消息数 ·····  *{data['total_forwarded']}*\n\n"
+        f"  📡  当前状态：{away}\n\n"
+        "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄\n"
+        f"📮 _TeleRelay v{VERSION}_"
     )
     await update.message.reply_text(text, parse_mode="Markdown")
 
@@ -350,39 +424,72 @@ async def cmd_away(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if data["away_mode"]:
         await update.message.reply_text(
-            f"🔴 已开启离开模式\n\n自动回复: {data['away_message']}\n\n"
-            "用 /setaway 修改自动回复内容",
+            "🔴 *离开模式 · 已开启*\n\n"
+            "━━━━━━━━━━━━━━━━━━\n\n"
+            f"  💬 自动回复内容：\n"
+            f"  _{data['away_message']}_\n\n"
+            "━━━━━━━━━━━━━━━━━━\n\n"
+            "💡 用 /setaway 修改自动回复",
+            parse_mode="Markdown",
         )
     else:
-        await update.message.reply_text("🟢 已关闭离开模式，你回来啦！")
+        await update.message.reply_text(
+            "🟢 *离开模式 · 已关闭*\n\n"
+            "欢迎回来！你现在可以直接收到消息了 ✨",
+            parse_mode="Markdown",
+        )
 
 
 @_owner_only
 async def cmd_setaway(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.args:
-        await update.message.reply_text(f"用法: /setaway 消息内容\n\n当前: {data['away_message']}")
+        await update.message.reply_text(
+            "⚙️ *离开自动回复设置*\n\n"
+            f"  当前内容：\n  _{data['away_message']}_\n\n"
+            "用法：/setaway `你想说的话`",
+            parse_mode="Markdown",
+        )
         return
     data["away_message"] = " ".join(context.args)
     save_data()
-    await update.message.reply_text(f"✅ 离开自动回复已更新:\n{data['away_message']}")
+    await update.message.reply_text(
+        "✅ *自动回复已更新*\n\n"
+        f"  新内容：\n  _{data['away_message']}_",
+        parse_mode="Markdown",
+    )
 
 
 @_owner_only
 async def cmd_broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.args:
-        await update.message.reply_text("用法: /broadcast 消息内容")
+        await update.message.reply_text(
+            "📢 *群发通知*\n\n用法：/broadcast `消息内容`\n\n"
+            f"当前可接收用户：*{len(verified_users)}* 人",
+            parse_mode="Markdown",
+        )
         return
 
-    text = "📢 *来自管理员的通知*\n\n" + " ".join(context.args)
+    content = " ".join(context.args)
+    broadcast_text = (
+        "┏━━━━━━━━━━━━━━━━━━┓\n"
+        "┃  📢  *管 理 员 通 知*\n"
+        "┗━━━━━━━━━━━━━━━━━━┛\n\n"
+        f"{content}"
+    )
     success = fail = 0
     for uid in list(verified_users):
         try:
-            await context.bot.send_message(uid, text, parse_mode="Markdown")
+            await context.bot.send_message(uid, broadcast_text, parse_mode="Markdown")
             success += 1
         except Exception:
             fail += 1
 
-    await update.message.reply_text(f"📢 群发完成\n✅ 成功: {success}\n❌ 失败: {fail}")
+    await update.message.reply_text(
+        "📢 *群发完成*\n\n"
+        f"  ✅ 成功：{success} 人\n"
+        f"  ❌ 失败：{fail} 人",
+        parse_mode="Markdown",
+    )
 
 
 # ══════════════════════════════════════════════════
@@ -400,7 +507,10 @@ async def handle_verify_callback(update: Update, context: ContextTypes.DEFAULT_T
     selected = query.data[2:]
 
     if user_id not in pending_users:
-        await query.edit_message_text("⏰ 验证已过期，请重新发送 /start")
+        await query.edit_message_text(
+            "⏰ *验证已过期*\n\n请重新发送 /start 开始验证",
+            parse_mode="Markdown",
+        )
         return
 
     if selected == pending_users[user_id]["answer"]:
@@ -408,18 +518,32 @@ async def handle_verify_callback(update: Update, context: ContextTypes.DEFAULT_T
         pending_users.pop(user_id, None)
         data["verified_users"] = list(verified_users)
         save_data()
-        await query.edit_message_text("✅ 验证通过！你的消息将转达给主人。主人回复后你会收到通知。")
 
         user = query.from_user
-        name = user.first_name or "未知"
-        username = f" @{user.username}" if user.username else ""
+        name = user.first_name or "朋友"
+        username = f" (@{user.username})" if user.username else ""
+
+        await query.edit_message_text(
+            "┏━━━━━━━━━━━━━━━━━━┓\n"
+            "┃  ✅  *验 证 通 过*\n"
+            "┗━━━━━━━━━━━━━━━━━━┛\n\n"
+            f"欢迎你, *{name}*! ✨\n\n"
+            "  💬  直接发送消息即可转达给主人\n"
+            "  📨  主人回复后你会收到通知\n\n"
+            "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄\n"
+            "💡 _支持 文字 · 图片 · 视频 · 文件 · 语音_",
+            parse_mode="Markdown",
+        )
+
         await context.bot.send_message(
             OWNER_ID,
-            f"🆕 新用户通过验证: {name}{username}\nID: `{user_id}`",
+            f"🆕 *新用户通过验证*\n\n"
+            f"  👤  {name}{username}\n"
+            f"  🆔  `{user_id}`",
             parse_mode="Markdown",
         )
     else:
-        await query.answer("❌ 选择错误，请重试", show_alert=True)
+        await query.answer("❌ 选择错误，请重试！", show_alert=True)
 
 
 # ══════════════════════════════════════════════════
@@ -472,8 +596,13 @@ async def _forward_media(bot, chat_id, msg, header, caption_suffix):
 
 async def forward_to_owner(context, user_id: int, display_name: str, message):
     """将用户消息转发给主人。"""
-    header = f"💬 来自 *{display_name}* 的消息：\n用户 ID: `{user_id}`\n"
-    suffix = f"\n\n💬 {display_name} | ID: {user_id}"
+    header = (
+        f"┌─── 📩 *收到新消息* ───┐\n\n"
+        f"  👤  *{display_name}*\n"
+        f"  🆔  用户 ID: `{user_id}`\n"
+        f"\n└──────────────────┘\n"
+    )
+    suffix = f"\n\n— 📩 {display_name} | `{user_id}`"
 
     try:
         await _forward_media(context.bot, OWNER_ID, message, header, suffix)
@@ -487,7 +616,11 @@ async def reply_to_user(context, target_id: int, message):
     """将主人的回复原样转发给用户。"""
     try:
         if message.text:
-            await context.bot.send_message(target_id, f"💬 主人回复：\n{message.text}")
+            await context.bot.send_message(
+                target_id,
+                f"┌─── 💌 *主人回复* ───┐\n\n{message.text}\n\n└──────────────────┘",
+                parse_mode="Markdown",
+            )
         elif message.sticker:
             await context.bot.send_sticker(target_id, message.sticker.file_id)
         else:
@@ -534,11 +667,24 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             target_id = extract_user_id(source_text)
             if target_id:
                 ok = await reply_to_user(context, target_id, msg)
-                emoji = "✅" if ok else "❌"
-                text = f"{emoji} {'已回复' if ok else '回复失败'} `{target_id}`"
-                await msg.reply_text(text, parse_mode="Markdown")
+                if ok:
+                    await msg.reply_text(
+                        f"✅ *已送达* — 用户 `{target_id}`",
+                        parse_mode="Markdown",
+                    )
+                else:
+                    await msg.reply_text(
+                        f"❌ *发送失败* — 用户 `{target_id}`\n\n"
+                        "用户可能已删除对话或封锁了机器人。",
+                        parse_mode="Markdown",
+                    )
                 return
-        await msg.reply_text("💡 请回复某条转发消息来回复对应用户。\n输入 /help 查看更多命令。")
+        await msg.reply_text(
+            "💡 *操作提示*\n\n"
+            "请回复某条转发消息来回复对应用户\n"
+            "输入 /help 查看完整命令列表",
+            parse_mode="Markdown",
+        )
         return
 
     # ── 封禁用户 ──
@@ -547,7 +693,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # ── 防刷屏 ──
     if is_rate_limited(user_id):
-        await msg.reply_text("⏳ 发送太频繁了，请稍等几秒...")
+        await msg.reply_text("⏳ 消息太频繁了，请稍等几秒再试…")
         return
 
     # ── 未验证用户 ──
@@ -562,9 +708,17 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await forward_to_owner(context, user_id, display_name, msg)
 
     if data["away_mode"]:
-        await msg.reply_text(f"✅ 已发送！\n\n🔴 {data['away_message']}")
+        await msg.reply_text(
+            f"✅ *消息已送达*\n\n"
+            f"🔴 _{data['away_message']}_",
+            parse_mode="Markdown",
+        )
     else:
-        await msg.reply_text("✅ 已发送给主人，等待回复...")
+        await msg.reply_text(
+            "✅ *消息已送达*\n\n"
+            "主人看到后会回复你 ✨",
+            parse_mode="Markdown",
+        )
 
 
 # ══════════════════════════════════════════════════
@@ -574,18 +728,23 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def post_init(application: Application):
     """启动时设置命令菜单并通知管理员。"""
     await application.bot.set_my_commands([
-        BotCommand("start", "开始使用 / 验证"),
-        BotCommand("help", "帮助信息"),
+        BotCommand("start", "✨ 开始使用"),
+        BotCommand("help", "📖 帮助信息"),
     ])
 
-    away_status = "🔴 离开模式" if data["away_mode"] else "🟢 在线"
+    away_status = "🔴 离开" if data["away_mode"] else "🟢 在线"
     await application.bot.send_message(
         OWNER_ID,
-        f"🤖 *TeleRelay v{VERSION} 已启动！*\n\n"
-        f"📡 状态: {away_status}\n"
-        f"✅ 已验证用户: {len(verified_users)}\n"
-        f"🚫 已封禁用户: {len(banned_users)}\n"
-        f"💬 历史转发: {data['total_forwarded']}",
+        "╔══════════════════╗\n"
+        f"║  🤖  *TeleRelay v{VERSION}*  ║\n"
+        "╚══════════════════╝\n\n"
+        "  ⚡  系统已成功启动！\n\n"
+        f"  📡  状态 ·········  {away_status}\n"
+        f"  ✅  已验证 ·······  *{len(verified_users)}* 人\n"
+        f"  🚫  已封禁 ·······  *{len(banned_users)}* 人\n"
+        f"  💬  历史转发 ·····  *{data['total_forwarded']}* 条\n\n"
+        "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄\n"
+        "输入 /help 查看命令手册",
         parse_mode="Markdown",
     )
 
