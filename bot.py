@@ -191,13 +191,11 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if user_id == OWNER_ID:
         await update.message.reply_text(
-            "╔══════════════════╗\n"
-            "║  👑  *管 理 员 面 板*  ║\n"
-            "╚══════════════════╝\n\n"
+            "👑 *管理员面板*\n"
+            "─────────────\n\n"
             "欢迎回来！操作说明：\n\n"
-            "  💬  回复转发的消息 → 即可回复用户\n"
-            "  📋  输入 /help → 查看完整命令\n\n"
-            "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄\n"
+            "💬 回复转发的消息 → 即可回复用户\n"
+            "📋 输入 /help → 查看完整命令\n\n"
             f"📮 _TeleRelay v{VERSION}_",
             parse_mode="Markdown",
         )
@@ -213,9 +211,8 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if user_id in verified_users:
         await update.message.reply_text(
-            f"┏━━━━━━━━━━━━━━━━━━┓\n"
-            f"┃  ✅  *欢迎回来, {name}!*\n"
-            f"┗━━━━━━━━━━━━━━━━━━┛\n\n"
+            f"✅ *欢迎回来, {name}!*\n"
+            "─────────────\n\n"
             "你已通过验证 ✨\n"
             "直接发送消息即可转达给主人\n\n"
             "💡 支持：文字 · 图片 · 视频 · 文件 · 语音",
@@ -225,12 +222,11 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         q, answer, keyboard = generate_captcha()
         pending_users[user_id] = {"answer": answer}
         await update.message.reply_text(
-            f"┏━━━━━━━━━━━━━━━━━━┓\n"
-            f"┃  🛡️  *安 全 验 证*\n"
-            f"┗━━━━━━━━━━━━━━━━━━┛\n\n"
+            f"🛡️ *安全验证*\n"
+            "─────────────\n\n"
             f"你好 *{name}*！\n"
             f"在联系主人之前，请先完成验证：\n\n"
-            f"  👉  *{q}*",
+            f"👉 *{q}*",
             reply_markup=keyboard,
             parse_mode="Markdown",
         )
@@ -239,38 +235,33 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id == OWNER_ID:
         text = (
-            "╔══════════════════╗\n"
-            "║  📖  *命 令 手 册*    ║\n"
-            "╚══════════════════╝\n\n"
-            "💬  *消息回复*\n"
-            "┃  回复转发消息即可回复用户\n\n"
-            "🚫  *用户管理*\n"
-            "┃  /ban `ID`  ─ 封禁用户\n"
-            "┃  /unban `ID`  ─ 解封用户\n"
-            "┃  /banlist  ─ 封禁列表\n\n"
-            "📊  *数据查看*\n"
-            "┃  /list  ─ 联系人列表\n"
-            "┃  /stats  ─ 运行统计\n\n"
-            "⚙️  *模式设置*\n"
-            "┃  /away  ─ 切换离开模式\n"
-            "┃  /setaway `内容`  ─ 离开自动回复\n\n"
-            "📢  *其他功能*\n"
-            "┃  /broadcast `消息`  ─ 群发通知\n"
-            "┃  /help  ─ 显示此帮助\n\n"
-            "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄\n"
+            "📖 *命令手册*\n"
+            "─────────────\n\n"
+            "💬 *消息回复*\n"
+            "· 回复转发消息即可回复用户\n\n"
+            "🚫 *用户管理*\n"
+            "· /ban `ID` — 封禁用户\n"
+            "· /unban `ID` — 解封用户\n"
+            "· /banlist — 封禁列表\n\n"
+            "📊 *数据查看*\n"
+            "· /list — 联系人列表\n"
+            "· /stats — 运行统计\n\n"
+            "⚙️ *模式设置*\n"
+            "· /away — 切换离开模式\n"
+            "· /setaway `内容` — 离开自动回复\n\n"
+            "📢 *其他*\n"
+            "· /broadcast `消息` — 群发通知\n\n"
             f"📮 _TeleRelay v{VERSION}_"
         )
     else:
         text = (
-            "╔══════════════════╗\n"
-            "║  📮  *使 用 指 南*    ║\n"
-            "╚══════════════════╝\n\n"
+            "📮 *使用指南*\n"
+            "─────────────\n\n"
             "通过这个机器人，你可以联系主人 ✨\n\n"
-            "  1️⃣  发送 /start 开始验证\n"
-            "  2️⃣  完成验证后直接发消息\n"
-            "  3️⃣  支持 文字 · 图片 · 视频 · 文件 · 语音\n"
-            "  4️⃣  主人回复后你会收到通知\n\n"
-            "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄\n"
+            "1️⃣ 发送 /start 开始验证\n"
+            "2️⃣ 完成验证后直接发消息\n"
+            "3️⃣ 支持 文字 · 图片 · 视频 · 文件 · 语音\n"
+            "4️⃣ 主人回复后你会收到通知\n\n"
             "💡 _有问题随时发消息吧！_"
         )
     await update.message.reply_text(text, parse_mode="Markdown")
@@ -347,18 +338,14 @@ async def cmd_banlist(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    lines = [
-        "╔══════════════════╗\n"
-        "║  🚫  *封 禁 列 表*    ║\n"
-        "╚══════════════════╝\n"
-    ]
+    lines = ["🚫 *封禁列表*\n─────────────\n"]
     for i, uid in enumerate(banned_users, 1):
         info = data["user_info"].get(str(uid), {})
         name = info.get("name", "未知")
         username = info.get("username", "")
         tag = f" (@{username})" if username else ""
-        lines.append(f"  {i}. {name}{tag}\n       ID: `{uid}`")
-    lines.append(f"\n┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄\n共 *{len(banned_users)}* 人")
+        lines.append(f"{i}. {name}{tag}\n    ID: `{uid}`")
+    lines.append(f"\n共 *{len(banned_users)}* 人")
     await update.message.reply_text("\n".join(lines), parse_mode="Markdown")
 
 
@@ -377,11 +364,7 @@ async def cmd_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reverse=True,
     )
 
-    lines = [
-        "╔══════════════════╗\n"
-        "║  📋  *联 系 人 列 表*  ║\n"
-        "╚══════════════════╝\n"
-    ]
+    lines = ["📋 *联系人列表*\n─────────────\n"]
     for i, (uid, info) in enumerate(sorted_users[:20], 1):
         name = info.get("name", "未知")
         username = info.get("username", "")
@@ -390,12 +373,12 @@ async def cmd_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         first = info.get("first_seen", "?")
         status = "🚫" if int(uid) in banned_users else "✅"
         lines.append(
-            f"  {status} *{name}*{tag}\n"
-            f"       🆔 `{uid}` · 💬 {count}条 · 📅 {first}"
+            f"{status} *{name}*{tag}\n"
+            f"    `{uid}` · {count}条消息 · {first}"
         )
 
     total = len(data["user_info"])
-    lines.append(f"\n┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄\n共 *{total}* 位联系人")
+    lines.append(f"\n共 *{total}* 位联系人")
     await update.message.reply_text("\n".join(lines), parse_mode="Markdown")
 
 
@@ -403,15 +386,13 @@ async def cmd_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def cmd_stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     away = "🟢 在线" if not data["away_mode"] else "🔴 离开"
     text = (
-        "╔══════════════════╗\n"
-        "║  📊  *运 行 统 计*    ║\n"
-        "╚══════════════════╝\n\n"
-        f"  👥  联系人总数 ·····  *{len(data['user_info'])}*\n"
-        f"  ✅  已验证用户 ·····  *{len(verified_users)}*\n"
-        f"  🚫  已封禁用户 ·····  *{len(banned_users)}*\n"
-        f"  💬  转发消息数 ·····  *{data['total_forwarded']}*\n\n"
-        f"  📡  当前状态：{away}\n\n"
-        "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄\n"
+        "📊 *运行统计*\n"
+        "─────────────\n\n"
+        f"👥 联系人：*{len(data['user_info'])}*\n"
+        f"✅ 已验证：*{len(verified_users)}*\n"
+        f"🚫 已封禁：*{len(banned_users)}*\n"
+        f"💬 已转发：*{data['total_forwarded']}*\n\n"
+        f"📡 状态：{away}\n\n"
         f"📮 _TeleRelay v{VERSION}_"
     )
     await update.message.reply_text(text, parse_mode="Markdown")
@@ -424,12 +405,10 @@ async def cmd_away(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if data["away_mode"]:
         await update.message.reply_text(
-            "🔴 *离开模式 · 已开启*\n\n"
-            "━━━━━━━━━━━━━━━━━━\n\n"
-            f"  💬 自动回复内容：\n"
-            f"  _{data['away_message']}_\n\n"
-            "━━━━━━━━━━━━━━━━━━\n\n"
-            "💡 用 /setaway 修改自动回复",
+            "🔴 *离开模式 · 已开启*\n"
+            "─────────────\n\n"
+            f"💬 自动回复：\n_{data['away_message']}_\n\n"
+            "💡 用 /setaway 修改内容",
             parse_mode="Markdown",
         )
     else:
@@ -471,9 +450,8 @@ async def cmd_broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     content = " ".join(context.args)
     broadcast_text = (
-        "┏━━━━━━━━━━━━━━━━━━┓\n"
-        "┃  📢  *管 理 员 通 知*\n"
-        "┗━━━━━━━━━━━━━━━━━━┛\n\n"
+        "📢 *管理员通知*\n"
+        "─────────────\n\n"
         f"{content}"
     )
     success = fail = 0
@@ -524,13 +502,11 @@ async def handle_verify_callback(update: Update, context: ContextTypes.DEFAULT_T
         username = f" (@{user.username})" if user.username else ""
 
         await query.edit_message_text(
-            "┏━━━━━━━━━━━━━━━━━━┓\n"
-            "┃  ✅  *验 证 通 过*\n"
-            "┗━━━━━━━━━━━━━━━━━━┛\n\n"
+            "✅ *验证通过*\n"
+            "─────────────\n\n"
             f"欢迎你, *{name}*! ✨\n\n"
-            "  💬  直接发送消息即可转达给主人\n"
-            "  📨  主人回复后你会收到通知\n\n"
-            "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄\n"
+            "💬 直接发送消息即可转达给主人\n"
+            "📨 主人回复后你会收到通知\n\n"
             "💡 _支持 文字 · 图片 · 视频 · 文件 · 语音_",
             parse_mode="Markdown",
         )
@@ -597,12 +573,12 @@ async def _forward_media(bot, chat_id, msg, header, caption_suffix):
 async def forward_to_owner(context, user_id: int, display_name: str, message):
     """将用户消息转发给主人。"""
     header = (
-        f"┌─── 📩 *收到新消息* ───┐\n\n"
-        f"  👤  *{display_name}*\n"
-        f"  🆔  用户 ID: `{user_id}`\n"
-        f"\n└──────────────────┘\n"
+        f"📩 *收到新消息*\n"
+        f"─────────────\n\n"
+        f"👤 *{display_name}*\n"
+        f"🆔 用户 ID: `{user_id}`\n\n"
     )
-    suffix = f"\n\n— 📩 {display_name} | `{user_id}`"
+    suffix = f"\n\n📩 {display_name} | `{user_id}`"
 
     try:
         await _forward_media(context.bot, OWNER_ID, message, header, suffix)
@@ -618,7 +594,7 @@ async def reply_to_user(context, target_id: int, message):
         if message.text:
             await context.bot.send_message(
                 target_id,
-                f"┌─── 💌 *主人回复* ───┐\n\n{message.text}\n\n└──────────────────┘",
+                f"💌 *主人回复*\n─────────────\n\n{message.text}",
                 parse_mode="Markdown",
             )
         elif message.sticker:
@@ -739,15 +715,12 @@ async def post_init(application: Application):
         away_status = "🔴 离开" if data["away_mode"] else "🟢 在线"
         await application.bot.send_message(
             OWNER_ID,
-            "╔══════════════════╗\n"
-            f"║  🤖  *TeleRelay v{VERSION}*  ║\n"
-            "╚══════════════════╝\n\n"
-            "  ⚡  系统已成功启动！\n\n"
-            f"  📡  状态 ·········  {away_status}\n"
-            f"  ✅  已验证 ·······  *{len(verified_users)}* 人\n"
-            f"  🚫  已封禁 ·······  *{len(banned_users)}* 人\n"
-            f"  💬  历史转发 ·····  *{data['total_forwarded']}* 条\n\n"
-            "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄\n"
+            f"🤖 *TeleRelay v{VERSION} 已启动*\n"
+            "─────────────\n\n"
+            f"📡 状态：{away_status}\n"
+            f"✅ 已验证：*{len(verified_users)}* 人\n"
+            f"🚫 已封禁：*{len(banned_users)}* 人\n"
+            f"💬 历史转发：*{data['total_forwarded']}* 条\n\n"
             "输入 /help 查看命令手册",
             parse_mode="Markdown",
         )
