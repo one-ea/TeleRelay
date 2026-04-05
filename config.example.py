@@ -1,4 +1,5 @@
-# ====== 在这里填写你的配置 ======
+# ====== TeleRelay 配置文件 ======
+# 也可通过环境变量设置 (优先级更高)
 
 # Telegram Bot Token（从 @BotFather 获取）
 BOT_TOKEN = "在这里填写你的BOT_TOKEN"

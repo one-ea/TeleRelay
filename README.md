@@ -5,6 +5,7 @@
     <img src="https://img.shields.io/badge/python-3.10+-blue?logo=python&logoColor=white" alt="Python">
     <img src="https://img.shields.io/badge/python--telegram--bot-21.x-blue?logo=telegram&logoColor=white" alt="PTB">
     <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
+    <img src="https://img.shields.io/badge/CPU-0.15+-orange" alt="Low CPU">
   </p>
 </p>
 
@@ -19,8 +20,10 @@
 - 🔴 **离开模式** — 不在时自动告知来访者
 - 📢 **群发广播** — 向所有已验证用户发送通知
 - 📊 **数据统计** — 追踪联系人数量和消息总量
-- 💾 **数据持久化** — JSON 存储，重启不丢数据
-- 🧾 **管理员命令菜单** — 丰富的管理命令
+- 💾 **数据持久化** — JSON 原子写入，重启不丢数据
+- ⚡ **低 CPU 优化** — 适配 0.15 CPU 免费主机，长轮询 + 延迟保存
+- 🌐 **多种部署方式** — 支持 Polling / Webhook 模式
+- 🔧 **灵活配置** — 支持 config.py 文件 + 环境变量
 
 ## 📋 命令列表
 
@@ -55,7 +58,7 @@
 ### 3. 克隆项目
 
 ```bash
-git clone https://github.com/你的用户名/TeleRelay.git
+git clone https://github.com/one-ea/TeleRelay.git
 cd TeleRelay
 ```
 
@@ -67,7 +70,7 @@ pip install -r requirements.txt
 
 ### 5. 配置
 
-复制示例配置文件并填入你的信息：
+**方式一：配置文件**
 
 ```bash
 cp config.example.py config.py
@@ -80,22 +83,31 @@ BOT_TOKEN = "你的Bot Token"
 OWNER_ID = 你的用户ID
 ```
 
+**方式二：环境变量**（推荐用于云平台）
+
+```bash
+export BOT_TOKEN="你的Bot Token"
+export OWNER_ID=你的用户ID
+```
+
 ### 6. 启动
 
 ```bash
 python bot.py
 ```
 
-## 🌐 部署到免费主机
+## 🌐 部署指南
 
 <details>
 <summary><b>Lunes / Pterodactyl 面板</b></summary>
 
 1. 创建 Python 类型服务器
-2. 上传 `bot.py`、`config.py`、`requirements.txt`
+2. 上传所有项目文件
 3. 在面板编辑 `config.py` 填入 Token 和 ID
-4. 设置启动命令：`pip install -r requirements.txt && python3 bot.py`
+4. **Startup 设置启动命令**：`bash start.sh`
 5. 启动服务器
+
+> ⚠️ 注意：不要使用 `&&` 连接命令，Pterodactyl 不支持。使用 `start.sh` 脚本替代。
 
 </details>
 
@@ -105,9 +117,7 @@ python bot.py
 1. Fork 本仓库
 2. 在平台新建项目，连接 GitHub 仓库
 3. 设置环境变量 `BOT_TOKEN` 和 `OWNER_ID`
-4. 部署即可
-
-> 如果使用环境变量，将 `config.py` 中的值改为 `os.getenv("BOT_TOKEN")` 等。
+4. 部署即可（Bot 会自动读取环境变量）
 
 </details>
 
@@ -123,6 +133,19 @@ python bot.py
 
 </details>
 
+## ⚙️ 高级配置
+
+通过环境变量自定义运行参数：
+
+| 环境变量 | 默认值 | 说明 |
+|---|---|---|
+| `BOT_TOKEN` | — | Bot Token（必填） |
+| `OWNER_ID` | — | 管理员用户 ID（必填） |
+| `BOT_MODE` | `polling` | 运行模式：`polling` / `webhook` |
+| `WEBHOOK_URL` | — | Webhook 域名（webhook 模式必填） |
+| `PORT` | `8443` | Webhook 监听端口 |
+| `DATA_FILE` | `data.json` | 数据文件路径 |
+
 ## 📁 项目结构
 
 ```
@@ -131,10 +154,11 @@ TeleRelay/
 ├── config.py             # 配置文件（不上传到 Git）
 ├── config.example.py     # 配置示例
 ├── requirements.txt      # Python 依赖
+├── start.sh              # 启动脚本（Pterodactyl 兼容）
 ├── LICENSE               # MIT 许可证
 ├── README.md             # 项目说明
 ├── .gitignore            # Git 忽略规则
-└── data.json             # 运行时生成的持久化数据（不上传到 Git）
+└── data.json             # 运行时数据（自动生成，不上传）
 ```
 
 ## 📄 开源许可
