@@ -703,8 +703,12 @@ def main():
         logger.info("Bot v2.0 starting in POLLING mode (low CPU)...")
         app.run_polling(
             drop_pending_updates=True,
-            poll_interval=2.0,       # 每 2 秒轮询一次（默认 0 秒，非常耗 CPU）
-            timeout=30,              # 长轮询超时 30 秒
+            poll_interval=5.0,       # 每 5 秒轮询一次（默认 0 秒，非常耗 CPU）
+            timeout=60,              # 长轮询超时 60 秒（等待期间 CPU 为 0）
+            read_timeout=60,
+            write_timeout=10,
+            connect_timeout=10,
+            pool_timeout=10,
         )
 
 
