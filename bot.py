@@ -2,11 +2,15 @@
 私聊中转机器人 v2.0
 功能：验证通过后转发消息（支持文字/表情包/图片/文件/视频/语音等）
 新增：数据持久化、封禁管理、防刷屏、离开模式、统计、帮助菜单
+优化：支持 Webhook 模式，适配低 CPU 主机
 """
+import asyncio
 import json
 import logging
 import os
 import random
+import signal
+import sys
 import time
 from datetime import datetime
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
@@ -20,9 +24,10 @@ from config import BOT_TOKEN, OWNER_ID
 # ──────────────────── 日志 ────────────────────
 logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(message)s",
-    level=logging.INFO,
+    level=logging.WARNING,  # 降低日志级别，减少 CPU 开销
 )
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)  # 只有我们自己的日志用 INFO
 
 # ──────────────────── 数据持久化 ────────────────────
 DATA_FILE = "data.json"
@@ -50,13 +55,44 @@ def load_data():
             logger.warning(f"数据文件读取失败，使用默认值: {e}")
     return default
 
+# ──────────────────── 延迟保存（减少磁盘写入） ────────────────────
+_save_pending = False
+_save_task = None
+
 def save_data():
-    """将数据保存到 JSON 文件。"""
+    """延迟保存数据，合并短时间内的多次写入，减少 CPU 和 IO 开销。"""
+    global _save_pending, _save_task
+    _save_pending = True
+    if _save_task is None or _save_task.done():
+        try:
+            loop = asyncio.get_running_loop()
+            _save_task = loop.create_task(_deferred_save())
+        except RuntimeError:
+            # 没有事件循环时直接保存
+            _do_save()
+
+async def _deferred_save():
+    """等待 5 秒后再保存，合并多次写入。"""
+    global _save_pending
+    await asyncio.sleep(5)
+    if _save_pending:
+        _do_save()
+        _save_pending = False
+
+def _do_save():
+    """实际写入磁盘。"""
     try:
         with open(DATA_FILE, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
     except Exception as e:
         logger.error(f"数据保存失败: {e}")
+
+def force_save():
+    """强制立即保存（用于关机前）。"""
+    global _save_pending
+    if _save_pending:
+        _do_save()
+        _save_pending = False
 
 data = load_data()
 verified_users = set(data["verified_users"])
@@ -603,13 +639,8 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE):
     logger.error(f"发生异常: {context.error}", exc_info=context.error)
 
 
-def main():
-    if not BOT_TOKEN or not OWNER_ID:
-        logger.error("请在 config.py 中设置 BOT_TOKEN 和 OWNER_ID")
-        return
-
-    app = Application.builder().token(BOT_TOKEN).post_init(post_init).build()
-
+def setup_handlers(app: Application):
+    """注册所有处理器。"""
     # 命令处理
     app.add_handler(CommandHandler("start", cmd_start))
     app.add_handler(CommandHandler("help", cmd_help))
@@ -631,8 +662,50 @@ def main():
     # 错误处理
     app.add_error_handler(error_handler)
 
-    logger.info("Bot v2.0 starting...")
-    app.run_polling(drop_pending_updates=True)
+
+def main():
+    if not BOT_TOKEN or not OWNER_ID:
+        logger.error("请在 config.py 中设置 BOT_TOKEN 和 OWNER_ID")
+        return
+
+    # 读取环境变量配置
+    webhook_url = os.environ.get("WEBHOOK_URL", "")  # 例如 https://your-domain.com/webhook
+    port = int(os.environ.get("PORT", "8443"))
+    mode = os.environ.get("BOT_MODE", "polling")  # 'webhook' 或 'polling'
+
+    # 优化连接池大小，减少资源占用
+    app = (
+        Application.builder()
+        .token(BOT_TOKEN)
+        .post_init(post_init)
+        .concurrent_updates(False)  # 串行处理，降低 CPU 峰值
+        .build()
+    )
+
+    setup_handlers(app)
+
+    # 关机时保存数据
+    import atexit
+    atexit.register(force_save)
+
+    if mode == "webhook" and webhook_url:
+        # ── Webhook 模式（推荐：0 空转 CPU）──
+        logger.info(f"Bot v2.0 starting in WEBHOOK mode on port {port}...")
+        app.run_webhook(
+            listen="0.0.0.0",
+            port=port,
+            url_path="/webhook",
+            webhook_url=f"{webhook_url}/webhook",
+            drop_pending_updates=True,
+        )
+    else:
+        # ── Polling 模式（降低频率）──
+        logger.info("Bot v2.0 starting in POLLING mode (low CPU)...")
+        app.run_polling(
+            drop_pending_updates=True,
+            poll_interval=2.0,       # 每 2 秒轮询一次（默认 0 秒，非常耗 CPU）
+            timeout=30,              # 长轮询超时 30 秒
+        )
 
 
 if __name__ == "__main__":
