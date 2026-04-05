@@ -7,6 +7,7 @@
     <img src="https://img.shields.io/badge/version-2.2-green" alt="Version">
     <img src="https://img.shields.io/badge/CPU-0.15+-orange" alt="Low CPU">
     <img src="https://img.shields.io/badge/license-MIT-brightgreen" alt="License">
+    <a href="https://linux.do"><img src="https://img.shields.io/badge/LINUX%20DO-社区支持-blue?logo=discourse&logoColor=white" alt="LINUX DO"></a>
   </p>
 </p>
 
@@ -170,3 +171,7 @@ TeleRelay/
 ## 🤝 贡献
 
 欢迎提交 Issue 和 Pull Request！
+
+## 🌐 社区
+
+本项目受到 [LINUX DO](https://linux.do) 社区的支持与推广。
