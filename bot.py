@@ -727,26 +727,33 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def post_init(application: Application):
     """启动时设置命令菜单并通知管理员。"""
-    await application.bot.set_my_commands([
-        BotCommand("start", "✨ 开始使用"),
-        BotCommand("help", "📖 帮助信息"),
-    ])
+    try:
+        await application.bot.set_my_commands([
+            BotCommand("start", "✨ 开始使用"),
+            BotCommand("help", "📖 帮助信息"),
+        ])
+    except Exception as e:
+        logger.warning(f"设置命令菜单失败: {e}")
 
-    away_status = "🔴 离开" if data["away_mode"] else "🟢 在线"
-    await application.bot.send_message(
-        OWNER_ID,
-        "╔══════════════════╗\n"
-        f"║  🤖  *TeleRelay v{VERSION}*  ║\n"
-        "╚══════════════════╝\n\n"
-        "  ⚡  系统已成功启动！\n\n"
-        f"  📡  状态 ·········  {away_status}\n"
-        f"  ✅  已验证 ·······  *{len(verified_users)}* 人\n"
-        f"  🚫  已封禁 ·······  *{len(banned_users)}* 人\n"
-        f"  💬  历史转发 ·····  *{data['total_forwarded']}* 条\n\n"
-        "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄\n"
-        "输入 /help 查看命令手册",
-        parse_mode="Markdown",
-    )
+    try:
+        away_status = "🔴 离开" if data["away_mode"] else "🟢 在线"
+        await application.bot.send_message(
+            OWNER_ID,
+            "╔══════════════════╗\n"
+            f"║  🤖  *TeleRelay v{VERSION}*  ║\n"
+            "╚══════════════════╝\n\n"
+            "  ⚡  系统已成功启动！\n\n"
+            f"  📡  状态 ·········  {away_status}\n"
+            f"  ✅  已验证 ·······  *{len(verified_users)}* 人\n"
+            f"  🚫  已封禁 ·······  *{len(banned_users)}* 人\n"
+            f"  💬  历史转发 ·····  *{data['total_forwarded']}* 条\n\n"
+            "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄\n"
+            "输入 /help 查看命令手册",
+            parse_mode="Markdown",
+        )
+    except Exception as e:
+        logger.warning(f"启动通知发送失败 (OWNER_ID={OWNER_ID}): {e}")
+        logger.warning("请确认 config.py 中的 OWNER_ID 是否正确，并已向 Bot 发送过 /start")
 
 
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE):
@@ -770,6 +777,10 @@ def main():
         .token(BOT_TOKEN)
         .post_init(post_init)
         .concurrent_updates(False)
+        .get_updates_read_timeout(60)
+        .get_updates_write_timeout(10)
+        .get_updates_connect_timeout(10)
+        .get_updates_pool_timeout(10)
         .build()
     )
 
@@ -805,11 +816,6 @@ def main():
         app.run_polling(
             drop_pending_updates=True,
             poll_interval=5.0,
-            timeout=60,
-            read_timeout=60,
-            write_timeout=10,
-            connect_timeout=10,
-            pool_timeout=10,
         )
 
 
